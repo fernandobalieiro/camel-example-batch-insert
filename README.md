@@ -1,0 +1,1 @@
+# camel-example-batch-insert
