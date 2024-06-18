@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
 import static org.apache.camel.LoggingLevel.DEBUG;
+import static org.apache.camel.LoggingLevel.WARN;
 import static org.apache.camel.model.dataformat.BindyType.Csv;
 
 /**
@@ -16,15 +17,22 @@ public class MyRouteBuilder extends RouteBuilder {
 
     private final MapAggregationStrategy mapAggregationStrategy;
 
-    /**
-     * Let's configure the Camel routing rules using Java code...
-     */
     public void configure() {
+
+        //jtaTransactionErrorHandler().maximumRedeliveries(0).retryAttemptedLogLevel(WARN);
+        //errorHandler(defaultErrorHandler().maximumRedeliveries(0).retryAttemptedLogLevel(WARN));
+
         from("file:src/data?noop=true&initialDelay=0&antInclude=*.zip").id("fromDir")
-            .log(">>> Start processing zip file: ${header.CamelFileName}")
             .onCompletion()
                 .log("<<< Finished processing file: ${header.CamelFileName}")
             .end()
+            .transacted("propagationRequired")
+            .to("sql:delete from people").id("deleteFromSql")
+//            .process(exchange -> {
+//                throw new RuntimeException("forcing an error when deleting from the database");
+//            })
+            //.delay(5000)
+            .log(">>> Start processing zip file: ${header.CamelFileName}")
             .unmarshal().zipFile()
             .log(">>> Start processing file: ${header.CamelFileName}")
             .split().tokenize("\n")
@@ -32,11 +40,14 @@ public class MyRouteBuilder extends RouteBuilder {
             .unmarshal().bindy(Csv, Person.class)
             .aggregate(mapAggregationStrategy)
                 .constant(true)
-                .completionSize(1000)
+                .completionSize(2)
                 .completionTimeout(2000)
-            .parallelProcessing()
+                .parallelProcessing()
             .log(DEBUG, "Aggregated ${body.size()} records")
-            .to("sql:insert into people (name, age) values (:#name, :#age)?dataSource=#dataSource&batch=true").id("toSql")
+//            .to("sql:upsert into people (name, age) values (:#name, :#age)?batch=true").id("toSql")
+            .to("""
+                    sql:insert into people (name, age) values (:#name, :#age) ON CONFLICT(age) DO NOTHING
+                    ?batch=true""").id("toSql")
             .log(DEBUG, "Inserted ${body.size()} records into the database")
         ;
     }

@@ -2,6 +2,6 @@ CREATE TABLE IF NOT EXISTS people
 (
     id serial,
     name varchar(250) NOT NULL,
-    age  int          NOT NULL,
+    age  int          NOT NULL UNIQUE,
     PRIMARY KEY (id)
 );

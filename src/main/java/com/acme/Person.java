@@ -14,6 +14,4 @@ public final class Person {
 
     @DataField(pos = 2, trim=true)
     private int age;
-
-
 }

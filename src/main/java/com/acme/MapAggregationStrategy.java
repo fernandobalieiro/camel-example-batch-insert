@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MapAggregationStrategy implements AggregationStrategy {
 
     @SuppressWarnings("unchecked")
@@ -18,16 +20,24 @@ public class MapAggregationStrategy implements AggregationStrategy {
         final var newBody = newExchange.getIn().getBody();
         List<Map<String, Object>> list;
 
+//        throw new RuntimeException("forcing an error");
+
         if (oldExchange == null) {
             list = new ArrayList<>();
             final var person = (Person) newBody;
             addNewEntry(person, list);
             newExchange.getIn().setBody(list);
+            if (person.getAge() == 2 || person.getAge() == 7) {
+                throw new RuntimeException("forcing an error");
+            }
             return newExchange;
         } else {
             list = oldExchange.getIn().getBody(List.class);
             final var person = (Person) newBody;
             addNewEntry(person, list);
+            if (person.getAge() == 2 || person.getAge() == 7) {
+                throw new RuntimeException("forcing an error");
+            }
             return oldExchange;
         }
     }
