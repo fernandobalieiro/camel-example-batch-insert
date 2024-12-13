@@ -20,6 +20,10 @@ public class MyRouteBuilder extends RouteBuilder {
         final var zipFile = new ZipFileDataFormat();
         zipFile.setUsingIterator(true);
 
+        // Configure Camel Context to use MDC Logging. This may degrade performance, use with caution.
+//        getContext().setUseMDCLogging(true);
+//        getContext().setUseBreadcrumb(true);
+
         from("file:src/data?noop=true&initialDelay=0&antInclude=*.zip").id("fromDir")
             .log(">>> Start processing zip file: ${header.CamelFileName}")
             .onCompletion()
@@ -28,13 +32,13 @@ public class MyRouteBuilder extends RouteBuilder {
             .unmarshal(zipFile)
             .split(bodyAs(Iterator.class)).streaming()
             .log(">>> Start processing file: ${header.CamelFileName}")
-            .split().tokenize("\n")
+            .split().tokenize("\n", 1, true)
                 .streaming().parallelProcessing()
             .unmarshal().bindy(Csv, Person.class)
             .aggregate(mapAggregationStrategy)
                 .constant(true)
                 .completionSize(1000)
-                .completionTimeout(2000)
+                .completionTimeout(500)
             .parallelProcessing()
             .log(DEBUG, "Aggregated ${body.size()} records")
             .to("sql:insert into people (name, age) values (:#name, :#age)?dataSource=#dataSource&batch=true").id("toSql")

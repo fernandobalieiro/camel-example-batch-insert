@@ -9,11 +9,9 @@ import org.apache.camel.dataformat.bindy.annotation.DataField;
 @Data
 @NoArgsConstructor
 public final class Person {
-    @DataField(pos = 1, trim=true)
+    @DataField(pos = 1, trim = true)
     private String name;
 
-    @DataField(pos = 2, trim=true)
+    @DataField(pos = 2, trim = true)
     private int age;
-
-
 }

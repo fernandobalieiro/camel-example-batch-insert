@@ -15,8 +15,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <log4j2-version>2.22.1</log4j2-version>
-        <camel.version>4.4.3</camel.version>
-        <spring.version>3.3.0</spring.version>
+        <camel.version>4.8.2</camel.version>
+        <spring.version>3.3.6</spring.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencyManagement>
@@ -64,12 +65,6 @@
             <version>${camel.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-            <version>${camel.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.camel.springboot</groupId>
             <artifactId>camel-management-starter</artifactId>
             <version>${camel.version}</version>
@@ -78,7 +73,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.7.3</version>
+            <version>42.7.4</version>
         </dependency>
 
         <!-- logging -->
@@ -102,11 +97,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.javafaker</groupId>
-            <artifactId>javafaker</artifactId>
-            <version>1.0.2</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.16.1</version>
@@ -129,7 +119,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>21</release>
+                    <release>${java.version}</release>
                 </configuration>
             </plugin>
             <plugin>
